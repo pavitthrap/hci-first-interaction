@@ -15,24 +15,26 @@ const defaultPrMessage = "Hi! Congrats on making your first pull request. The *i
 
 //helper functions
 function isFirstIssue(client, owner, repo, sender, curIssueNumber) {
-    const { status, data: issues } = yield client.issues.listForRepo({
-        owner: owner,
-        repo: repo,
-        creator: sender,
-        state: 'all'
-    });
-    if (status !== 200) {
-        throw new Error(`Received unexpected API status code ${status}`);
-    }
-    if (issues.length === 0) {
-        return true;
-    }
-    for (const issue of issues) {
-        if (issue.number < curIssueNumber && !issue.pull_request) {
-            return false;
-        }
-    }
-    return true;
+  return __awaiter(this, void 0, void 0, function* () {
+      const { status, data: issues } = yield client.issues.listForRepo({
+          owner: owner,
+          repo: repo,
+          creator: sender,
+          state: 'all'
+      });
+      if (status !== 200) {
+          throw new Error(`Received unexpected API status code ${status}`);
+      }
+      if (issues.length === 0) {
+          return true;
+      }
+      for (const issue of issues) {
+          if (issue.number < curIssueNumber && !issue.pull_request) {
+              return false;
+          }
+      }
+      return true;
+  });
 }
 
 // No way to filter pulls by creator - todo - go through logic 
