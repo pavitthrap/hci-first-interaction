@@ -77,8 +77,7 @@ function run() {
       issueMessage = defaultIssueMessage;
     }
 
-    // deleted { required: true }
-    const client = new github.GitHub(core.getInput('repo-token'));
+    const client = new github.GitHub(core.getInput('repo-token', { required: true }));
     const context = github.context;
     if (context.payload.action !== 'opened') {
         console.log('No issue or PR was opened, skipping');
