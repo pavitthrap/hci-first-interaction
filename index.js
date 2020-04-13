@@ -1,3 +1,12 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+  return new (P || (P = Promise))(function (resolve, reject) {
+      function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+      function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+      function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+};
+
 const core = require('@actions/core');
 const github = require('@actions/github');
 
@@ -6,26 +15,24 @@ const defaultPrMessage = "Hi! Congrats on making your first pull request. The *i
 
 //helper functions
 function isFirstIssue(client, owner, repo, sender, curIssueNumber) {
-  return __awaiter(this, void 0, void 0, function* () {
-      const { status, data: issues } = yield client.issues.listForRepo({
-          owner: owner,
-          repo: repo,
-          creator: sender,
-          state: 'all'
-      });
-      if (status !== 200) {
-          throw new Error(`Received unexpected API status code ${status}`);
-      }
-      if (issues.length === 0) {
-          return true;
-      }
-      for (const issue of issues) {
-          if (issue.number < curIssueNumber && !issue.pull_request) {
-              return false;
-          }
-      }
-      return true;
-  });
+    const { status, data: issues } = yield client.issues.listForRepo({
+        owner: owner,
+        repo: repo,
+        creator: sender,
+        state: 'all'
+    });
+    if (status !== 200) {
+        throw new Error(`Received unexpected API status code ${status}`);
+    }
+    if (issues.length === 0) {
+        return true;
+    }
+    for (const issue of issues) {
+        if (issue.number < curIssueNumber && !issue.pull_request) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // No way to filter pulls by creator - todo - go through logic 
@@ -94,9 +101,10 @@ function run() {
     const isIssue = context.payload.issue;
     const sender = context.payload.sender.login;
     const issue = context.issue;
+    console.log(issue.owner, issue.repo, sender, issue.number);
     let firstContribution = false;
     if (isIssue) {
-        firstContribution = yield isFirstIssue(client, issue.owner, issue.repo, sender, issue.number);
+        firstContribution = isFirstIssue(client, issue.owner, issue.repo, sender, issue.number);
     }
     else {
         // why passing issue. ? instead of pulls
