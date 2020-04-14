@@ -18,20 +18,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
 
-const defaultIssueMessage = "Hi! Thanks for bringing this issue to the community's attention. This community welcomes you and looks forward to looking at your issue. In the mean feel free to join our Slack community for more updates.";
-const defaultPrMessage = "Hi! Congrats on making your first pull request. The *insert repo name* community welcomes you and looks forward to looking at your contribution. In the meantime, please sign the CLA linked below and if you’d like, take a look at this file written for newer contributors.";
+const defaultIssueMessage = "Hi {{name}}! Thanks for bringing this issue to the community's attention. This community welcomes you and looks forward to looking at your issue. In the mean feel free to join our Slack community for more updates.";
+const defaultPrMessage = "Hi {{name}}! Congrats on making your first pull request. The *insert repo name* community welcomes you and looks forward to looking at your contribution. In the meantime, please sign the CLA linked below and if you’d like, take a look at this file written for newer contributors.";
 
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let issueMessage = core.getInput('issue-message');
             let prMessage = core.getInput('pr-message');
-            if (!prMessage) {
-              prMessage = defaultPrMessage;
-            }
-            if (!issueMessage) {
-              issueMessage = defaultIssueMessage;
-            }
+            
             // Get client and context
             const client = new github.GitHub(core.getInput('repo-token', { required: true }));
             const context = github.context;
@@ -54,6 +49,15 @@ function run() {
             }
             const sender = context.payload.sender.login;
             console.log("login is: ", sender);
+            if (!prMessage) {
+              prMessage = defaultPrMessage;
+              prMessage = prMessage.replace("{{name}}", sender);
+            }
+            if (!issueMessage) {
+              issueMessage = defaultIssueMessage;
+              issueMessage = issueMessage.replace("{{name}}", sender);
+            }
+            
             const issue = context.issue;
             let firstContribution = false;
             if (isIssue) {
@@ -62,9 +66,10 @@ function run() {
             else {
                 firstContribution = yield isFirstPull(client, issue.owner, issue.repo, sender, issue.number);
             }
+            // TODO - still commenting if not first contribution - but logging in console
             if (!firstContribution) {
-                console.log('Not the users first contribution');
-                return;
+                console.log('Not the users first contribution, but will continue');
+                //return;
             }
             // Do nothing if no message set for this type of contribution
             const message = isIssue ? issueMessage : prMessage;
