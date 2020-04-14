@@ -24,8 +24,8 @@ const defaultPrMessage = "Hi! Congrats on making your first pull request. The *i
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const issueMessage = core.getInput('issue-message');
-            const prMessage = core.getInput('pr-message');
+            let issueMessage = core.getInput('issue-message');
+            let prMessage = core.getInput('pr-message');
             if (!prMessage) {
               prMessage = defaultPrMessage;
             }
