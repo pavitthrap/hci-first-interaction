@@ -18,8 +18,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
 
-const defaultIssueMessage = "Hi {{name}}! Thanks for bringing this issue to the community's attention. This community welcomes you and looks forward to looking at your issue. In the mean feel free to join our Slack community for more updates.";
-const defaultPrMessage = "Hi {{name}}! Congrats on making your first pull request. The *insert repo name* community welcomes you and looks forward to looking at your contribution. In the meantime, please sign the CLA linked below and if you’d like, take a look at this file written for newer contributors.";
+const defaultIssueMessage = "Hi @{{name}}! Thanks for bringing this issue to the community's attention. This community welcomes you and looks forward to looking at your issue. In the mean feel free to join our Slack community for more updates.";
+const defaultPrMessage = "Hi @{{name}}! Congrats on making your first pull request. The *insert repo name* community welcomes you and looks forward to looking at your contribution. In the meantime, please sign the CLA linked below and if you’d like, take a look at this file written for newer contributors.";
 
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -37,7 +37,6 @@ function run() {
             // Do nothing if its not a pr or issue
             const isIssue = context.payload.issue;
             const isPr = context.payload.pull_request;
-            
             if (!isIssue && !isPr) {
                 console.log('The event that triggered this action was not a pull request or issue, skipping.');
                 return;
@@ -97,6 +96,8 @@ function run() {
                     event: 'COMMENT'
                 });
             }
+            console.log("context is: ", context);
+
         }
         catch (error) {
             core.setFailed(error.message);
