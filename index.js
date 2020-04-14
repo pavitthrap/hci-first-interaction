@@ -17,13 +17,20 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
+
+const defaultIssueMessage = "Hi! Thanks for bringing this issue to the community's attention. This community welcomes you and looks forward to looking at your issue. In the mean feel free to join our Slack community for more updates.";
+const defaultPrMessage = "Hi! Congrats on making your first pull request. The *insert repo name* community welcomes you and looks forward to looking at your contribution. In the meantime, please sign the CLA linked below and if you’d like, take a look at this file written for newer contributors.";
+
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const issueMessage = core.getInput('issue-message');
             const prMessage = core.getInput('pr-message');
-            if (!issueMessage && !prMessage) {
-                throw new Error('Action must have at least one of issue-message or pr-message set');
+            if (!prMessage) {
+              prMessage = defaultPrMessage;
+            }
+            if (!issueMessage) {
+              issueMessage = defaultIssueMessage;
             }
             // Get client and context
             const client = new github.GitHub(core.getInput('repo-token', { required: true }));
@@ -33,8 +40,10 @@ function run() {
                 return;
             }
             // Do nothing if its not a pr or issue
-            const isIssue = !!context.payload.issue;
-            if (!isIssue && !context.payload.pull_request) {
+            const isIssue = context.payload.issue;
+            const isPr = context.payload.pull_request;
+            
+            if (!isIssue && !isPr) {
                 console.log('The event that triggered this action was not a pull request or issue, skipping.');
                 return;
             }
@@ -44,6 +53,7 @@ function run() {
                 throw new Error('Internal error, no sender provided by GitHub');
             }
             const sender = context.payload.sender.login;
+            console.log("login is: ", sender);
             const issue = context.issue;
             let firstContribution = false;
             if (isIssue) {
